@@ -1,0 +1,60 @@
+name: "Apply Assignments for Accounts and Permission Sets"
+on:
+  push:
+    branches:
+      - main
+env:
+  AWS_REGION: "us-east-1"
+  AWS_ACCESS_KEY_ID: ${{ secrets.PROVISIONER_AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.PROVISIONER_AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCOUNT_ID: ${{ secrets.OPERATIONS_AWS_ACCOUNT_ID }}
+
+  TS_ENV: "dev"
+  TF_VAR_aws_account_operations: ${{ secrets.OPERATIONS_AWS_ACCOUNT_ID }}
+  TF_VAR_aws_account_development: ${{ secrets.DEVELOPMENT_AWS_ACCOUNT_ID }}
+  TF_VAR_aws_account_production: ${{ secrets.PRODUCTION_AWS_ACCOUNT_ID }}
+
+jobs:
+  apply-assignments:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+          terraform_version: 1.3.9
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1.2'
+
+      - name: Install Terraspace
+        run: |
+          bundle install
+
+      - name: Download Terraform Modules
+        run: |
+          terraspace bundle
+
+      - name: Terraspace All Init
+        run: |
+          terraspace all init -y
+
+      - name: Terraspace All Up
+        run: |
+          terraspace all up -y
+
+      - name: Upload Logs to Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: terraspace-logs
+          path: ./log/*
