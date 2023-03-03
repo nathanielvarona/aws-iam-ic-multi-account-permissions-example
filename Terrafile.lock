@@ -1,0 +1,7 @@
+---
+sso:
+  source: cloudposse/sso/aws
+  version: 0.7.1
+  type: registry
+  url: https://github.com/cloudposse/terraform-aws-sso
+  sha: 5c8a95dde212e4cc2133b28000a6517ab4e2a328

@@ -12,3 +12,5 @@
 #
 # Use modules from the Terraform registry
 # mod "sqs", source: "terraform-aws-modules/sqs/aws"
+
+mod "sso", source: "cloudposse/sso/aws", version: "0.7.1"
